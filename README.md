@@ -2,4 +2,4 @@
 
 SharePoint list copy multi person field from one to another using Power Automate
 
-#SharePoint #Power Automate #SharePoint List #MultiPerson Field
+#SharePoint #PowerAutomate #SharePointList #MultiPersonField
