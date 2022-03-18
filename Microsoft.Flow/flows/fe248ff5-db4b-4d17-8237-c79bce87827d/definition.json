@@ -1,0 +1,168 @@
+{
+    "name": "499fec41-91ec-40db-b7c1-b3881e240e82",
+    "id": "/providers/Microsoft.Flow/flows/499fec41-91ec-40db-b7c1-b3881e240e82",
+    "type": "Microsoft.Flow/flows",
+    "properties": {
+        "apiId": "/providers/Microsoft.PowerApps/apis/shared_logicflows",
+        "displayName": "Create Item on list ipsum",
+        "definition": {
+            "metadata": {
+                "workflowEntityId": null,
+                "flowclientsuspensionreason": "None",
+                "flowclientsuspensiontime": null,
+                "creator": {
+                    "id": "d1dd6a0d-76eb-4d55-8a81-daa0b1c2c00d",
+                    "type": "User",
+                    "tenantId": "7859a802-8ec8-4b61-b333-64f45f7cdbd3"
+                },
+                "provisioningMethod": "FromDefinition",
+                "failureAlertSubscription": true,
+                "clientLastModifiedTime": "2020-10-07T11:55:24.3884109Z"
+            },
+            "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+            "contentVersion": "1.0.0.0",
+            "parameters": {
+                "$connections": {
+                    "defaultValue": {},
+                    "type": "Object"
+                },
+                "$authentication": {
+                    "defaultValue": {},
+                    "type": "SecureObject"
+                }
+            },
+            "triggers": {
+                "When_an_item_is_created_or_modified": {
+                    "recurrence": {
+                        "frequency": "Minute",
+                        "interval": 5
+                    },
+                    "splitOn": "@triggerOutputs()?['body/value']",
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                        "host": {
+                            "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                            "connectionName": "shared_sharepointonline",
+                            "operationId": "GetOnUpdatedItems"
+                        },
+                        "parameters": {
+                            "dataset": "https://contso.sharepoint.com/sites/lorem",
+                            "table": "5ebdeeb9-165a-4166-a192-c43ec6b179e1"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                    }
+                }
+            },
+            "actions": {
+                "Condition": {
+                    "actions": {
+                        "Send_an_HTTP_request_to_SharePoint": {
+                            "runAfter": {},
+                            "type": "OpenApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                                    "connectionName": "shared_sharepointonline",
+                                    "operationId": "HttpRequest"
+                                },
+                                "parameters": {
+                                    "dataset": "https://contso.sharepoint.com/sites/lorem",
+                                    "parameters/method": "POST",
+                                    "parameters/uri": "_api/web/lists/getbytitle('ipsum')/items",
+                                    "parameters/headers": {
+                                        "Accept": "application/json;odata=verbose",
+                                        "Content-Type": "application/json;odata=verbose"
+                                    },
+                                    "parameters/body": "{\n\"__metadata\": {\n\"type\": \"SP.Data.IpsumListItem\"\n},\n\"Title\": \"@{triggerOutputs()?['body/Title']}\",\n\"Opportunity\": \"@{triggerOutputs()?['body/Opportunity/Value']}\",\n \"AssigneeId\": {'results':@{outputs('Compose')}}\n}\n"
+                                },
+                                "authentication": "@parameters('$authentication')"
+                            }
+                        }
+                    },
+                    "runAfter": {
+                        "Compose": [
+                            "Succeeded"
+                        ]
+                    },
+                    "expression": {
+                        "equals": [
+                            "@triggerOutputs()?['body/Opportunity/Value']",
+                            "Closed"
+                        ]
+                    },
+                    "type": "If"
+                },
+                "Initialize_variable": {
+                    "runAfter": {},
+                    "type": "InitializeVariable",
+                    "inputs": {
+                        "variables": [
+                            {
+                                "name": "PersonId",
+                                "type": "array"
+                            }
+                        ]
+                    }
+                },
+                "Apply_to_each": {
+                    "foreach": "@triggerOutputs()?['body/Assignee']",
+                    "actions": {
+                        "Send_an_HTTP_request_to_SharePoint_2": {
+                            "runAfter": {},
+                            "type": "OpenApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                                    "connectionName": "shared_sharepointonline",
+                                    "operationId": "HttpRequest"
+                                },
+                                "parameters": {
+                                    "dataset": "https://contso.sharepoint.com/sites/lorem",
+                                    "parameters/method": "GET",
+                                    "parameters/uri": "_api/Web/SiteUsers/getByEmail('@{items('Apply_to_each')?['Email']}')"
+                                },
+                                "authentication": "@parameters('$authentication')"
+                            }
+                        },
+                        "Append_to_array_variable": {
+                            "runAfter": {
+                                "Send_an_HTTP_request_to_SharePoint_2": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "AppendToArrayVariable",
+                            "inputs": {
+                                "name": "PersonId",
+                                "value": "@body('Send_an_HTTP_request_to_SharePoint_2')['d']['id']"
+                            }
+                        }
+                    },
+                    "runAfter": {
+                        "Initialize_variable": [
+                            "Succeeded"
+                        ]
+                    },
+                    "type": "Foreach"
+                },
+                "Compose": {
+                    "runAfter": {
+                        "Apply_to_each": [
+                            "Succeeded"
+                        ]
+                    },
+                    "type": "Compose",
+                    "inputs": "@variables('PersonId')"
+                }
+            }
+        },
+        "connectionReferences": {
+            "shared_sharepointonline": {
+                "connectionName": "shared-sharepointonl-fb503d6d-44e2-419a-9c20-3bb9-a8ad66f7",
+                "source": "Embedded",
+                "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                "tier": "NotSpecified"
+            }
+        },
+        "flowFailureAlertSubscribed": false
+    }
+}

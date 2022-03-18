@@ -1,0 +1,54 @@
+{
+    "schema": "1.0",
+    "details": {
+        "displayName": "multi person field copy from one list to another",
+        "description": "Copy items from one SharePoint list to another where multi person field exist",
+        "createdTime": "2020-10-07T12:33:42.306777Z",
+        "packageTelemetryId": "4084385c-31f0-45d7-8e13-09ede29e6ab4",
+        "creator": "John Doe",
+        "sourceEnvironment": "contso (default)"
+    },
+    "resources": {
+        "fe248ff5-db4b-4d17-8237-c79bce87827d": {
+            "type": "Microsoft.Flow/flows",
+            "suggestedCreationType": "Update",
+            "creationType": "Existing, New, Update",
+            "details": {
+                "displayName": "Create Item on list ipsum"
+            },
+            "configurableBy": "User",
+            "hierarchy": "Root",
+            "dependsOn": [
+                "d8aab16c-a83a-4acb-84ec-b670cde2092f",
+                "9ca0258e-5e06-4fad-9676-cf5bdfa2cc51"
+            ]
+        },
+        "d8aab16c-a83a-4acb-84ec-b670cde2092f": {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+            "name": "shared_sharepointonline",
+            "type": "Microsoft.PowerApps/apis",
+            "suggestedCreationType": "Existing",
+            "details": {
+                "displayName": "SharePoint",
+                "iconUri": "https://connectoricons-prod.azureedge.net/releases/v1.0.1398/1.0.1398.2149/sharepointonline/icon.png"
+            },
+            "configurableBy": "System",
+            "hierarchy": "Child",
+            "dependsOn": []
+        },
+        "9ca0258e-5e06-4fad-9676-cf5bdfa2cc51": {
+            "type": "Microsoft.PowerApps/apis/connections",
+            "suggestedCreationType": "Existing",
+            "creationType": "Existing",
+            "details": {
+                "displayName": "john@contso.onmicrosoft.com",
+                "iconUri": "https://connectoricons-prod.azureedge.net/releases/v1.0.1398/1.0.1398.2149/sharepointonline/icon.png"
+            },
+            "configurableBy": "User",
+            "hierarchy": "Child",
+            "dependsOn": [
+                "d8aab16c-a83a-4acb-84ec-b670cde2092f"
+            ]
+        }
+    }
+}
